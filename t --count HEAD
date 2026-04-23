@@ -1,0 +1,35 @@
+[33mcommit 3a21750d6a7d18d87035ed9cd91fa4771469e0a9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/TASK-001-init-project[m[33m)[m
+Author: akinfina-ulyana <ulyana.akinfina22@gmail.com>
+Date:   Thu Apr 23 13:37:25 2026 +0300
+
+    feat: [TASK-001] init project structure
+
+[33mcommit 12681dbba2117c69e91579b29cd2466518456bd6[m
+Author: akinfina-ulyana <ulyana.akinfina22@gmail.com>
+Date:   Wed Apr 8 12:50:15 2026 +0300
+
+    chore: remove local django project for docker setup
+
+[33mcommit 86c88f85c5269825694dd69e9a8a776d9c72fa66[m
+Author: akinfina-ulyana <ulyana.akinfina22@gmail.com>
+Date:   Wed Apr 8 11:39:54 2026 +0300
+
+    feat: [TASK-001] init django project
+
+[33mcommit 3c4cef14f516b5e4f9b835e852bae2e0c1909414[m
+Author: akinfina-ulyana <ulyana.akinfina22@gmail.com>
+Date:   Wed Apr 8 11:39:24 2026 +0300
+
+    feat: [TASK-001] add dependencies
+
+[33mcommit 0475a03863535480a205c60aaf6be12ee7df65b9[m
+Author: akinfina-ulyana <ulyana.akinfina22@gmail.com>
+Date:   Wed Apr 8 11:37:39 2026 +0300
+
+    feat: [TASK-001] init project structure
+
+[33mcommit ff3e15359626d6aadfc8f737fd8ea84cc7820721[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/develop[m[33m, [m[1;32mmain[m[33m, [m[1;32mdevelop[m[33m)[m
+Author: akinfina-ulyana <ulyana.akinfina22@gmail.com>
+Date:   Wed Apr 8 11:27:09 2026 +0300
+
+    initial commit
