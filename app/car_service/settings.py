@@ -41,6 +41,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "debug_toolbar",
     "drf_spectacular",
+    "buyers",
+    "suppliers",
+    "dealership",
+    "users",
+    "cars",
 ]
 
 MIDDLEWARE = [
@@ -153,3 +158,5 @@ SPECTACULAR_SETTINGS = {
         }
     },
 }
+
+AUTH_USER_MODEL = "users.User"
