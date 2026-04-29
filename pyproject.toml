@@ -1,7 +1,6 @@
 [tool.bandit]
 exclude_dirs = [
-    "semkov/settings/",
-    "semkov/tests/"
+    "migrations"
 ]
 skips = ["B308", "B501"]
 
@@ -56,7 +55,7 @@ exclude = [
     ".venv",
     "venv",
     "__pypackages__",
-    "semkov/settings/*"
+    "migrations"
 ]
 ignore = [
     # Disable eradicate (commented code removal)
@@ -104,3 +103,10 @@ lines-after-imports = 2
 "**/*test*.py" = ["E402", "F403", "F405", "S", "N802"]
 "**/{settings}/*" = ["E402", "F403", "F405"]
 "**/migrations/*" = ["RUF", "I"]
+
+[tool.mypy]
+exclude = ".*migrations.*"
+
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
