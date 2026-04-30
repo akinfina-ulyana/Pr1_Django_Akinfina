@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.base_models import TimeStampedModel
+from core.models import TimeStampedModel
 
 
 class CarModel(TimeStampedModel):

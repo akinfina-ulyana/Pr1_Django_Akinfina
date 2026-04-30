@@ -21,7 +21,6 @@ from django.urls import include, path
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 router = DefaultRouter()
@@ -36,8 +35,7 @@ if settings.DEBUG:
 
     urlpatterns += [
         path("__debug__/", include(debug_toolbar.urls)),
-        path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-        path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+        path("api/auth/", include("users.urls")),
     ]
 
     urlpatterns += [

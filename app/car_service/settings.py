@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework_simplejwt.token_blacklist",
     "debug_toolbar",
     "drf_spectacular",
     "buyers",
@@ -114,12 +115,24 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "10/min",
+        "user": "30/min",
+        "login": "5/min",
+    },
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=600),  # minutes=60
     "REFRESH_TOKEN_LIFETIME": timedelta(days=2),  # days=1
     "AUTH_HEADER_TYPES": ("Bearer",),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "SIGNING_KEY": os.getenv("JWT_SECRET_KEY"),
 }
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -160,3 +173,5 @@ SPECTACULAR_SETTINGS = {
 }
 
 AUTH_USER_MODEL = "users.User"
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

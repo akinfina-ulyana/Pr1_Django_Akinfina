@@ -32,24 +32,23 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
-        BUYER = "buyer", "Покупатель"
-        SUPPLIER = "supplier", "Поставщик"
-        DEALERSHIP = "dealership", "Автосалон"
-        WORKER_SUPPLIER = "worker_supplier", "Сотрудник поставщика"
-        WORKER_DEALERSHIP = "worker_dealership", "Сотрудник автосалона"
-        ADMIN = "admin", "админ"
+        BUYER = "BUYER", "Buyer"
+        WORKER_SUPPLIER = "WORKER_SUPPLIER", "Suppliers worker"
+        WORKER_DEALERSHIP = "WORKER_DEALERSHIP", "Dealerships worker"
+        NOBODY = "NOBODY", "Nobody"
+        ADMIN = "ADMIN", "Admin"
 
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=32, choices=Role.choices, default=Role.ADMIN)
+    role = models.CharField(max_length=32, choices=Role.choices, default=Role.NOBODY)
 
     is_email_verified = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: list[str] = ["email"]
+    REQUIRED_FIELDS: list[str] = []
 
     def __str__(self):
         return self.email
