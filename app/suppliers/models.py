@@ -1,38 +1,31 @@
 from django.db import models
 
 from car_service import settings
-from core.base_models import TimeStampedModel
-
-
-# from app.core.base_models import TimeStampedModel
+from core.models import TimeStampedModel
 
 
 class Supplier(TimeStampedModel):
-    class Status(models.TextChoices):
-        PENDING = "pending", "Ожидает проверки"
-        ACTIVE = "active", "Активен"
-        SUSPENDED = "suspended", "Приостановлен"
-        REJECTED = "rejected", "Отклонён"
-
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="supplier")
-
     name = models.CharField(max_length=255)
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    founded_year = models.PositiveIntegerField(max_length=4)
+    founded_year = models.PositiveIntegerField()
 
     contact_phone = models.CharField(max_length=30, blank=True)
     contact_email = models.EmailField()
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name, self.fo
 
 
 class WorkerProfileSupplier(TimeStampedModel):
+    class Position(models.TextChoices):
+        ADMIN = "ADMIN", "Admin"
+        MANAGER = "MANAGER", "Manager"
+        SALES = "SALES", "Sales"
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="worker_supplier")
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name="workers")
 
@@ -40,8 +33,12 @@ class WorkerProfileSupplier(TimeStampedModel):
     last_name = models.CharField(max_length=100)
     country = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, blank=True)
-    position = models.CharField(max_length=100)  # тут лучше сделать Choices
-    is_active = models.BooleanField(default=True)
+
+    position = models.CharField(
+        max_length=50,
+        choices=Position.choices,
+    )
+    is_active = models.BooleanField(default=False)
 
 
 class SupplierInventory(TimeStampedModel):

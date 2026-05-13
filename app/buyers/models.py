@@ -1,7 +1,7 @@
 from django.db import models
 
 from car_service import settings
-from core.base_models import TimeStampedModel
+from core.models import TimeStampedModel
 
 
 class BuyerProfile(TimeStampedModel):
@@ -10,7 +10,7 @@ class BuyerProfile(TimeStampedModel):
     last_name = models.CharField(max_length=100)
     country = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=30, blank=True)
-    balance = models.DecimalField(max_digits=12, decimal_places=2)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -19,20 +19,20 @@ class BuyerProfile(TimeStampedModel):
 
 class Offer(TimeStampedModel):
     class Status(models.TextChoices):
-        CREATED = "created", "Создана"
-        PROCESSING = "processing", "Обработка"
-        APPROVED = "approved", "Подтверждена"
-        PAID = "paid", "Оплачена"
-        REJECTED = "rejected", "Отклонена"
-        CANCELED = "canceled", "Отменена"
-        FAILED = "failed", "Техническая ошибка"
+        CREATED = "CREATED", "Created"
+        PROCESSING = "PROCESSING", "Processing"
+        APPROVED = "APPROVED", "Approved"
+        PAID = "PAID", "Paid"
+        REJECTED = "REJECTED", "Rejected"
+        CANCELED = "CANCELED", "Canceled"
+        FAILED = "FAILED", "Failed"
 
     class RejectionReason(models.TextChoices):
-        INSUFFICIENT_FUNDS = "insufficient_funds", "Недостаточно средств"
-        OUT_OF_STOCK = "out_of_stock", "Нет в наличии"
-        PRICE_CHANGED = "price_changed", "Цена изменилась"
-        DEALERSHIP_INACTIVE = "dealership_inactive", "Автосалон неактивен"
-        TRANSACTION_NOT_APPROVED = "transaction_not_approved", "Транзакция не подтверждена"
+        INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS", "Insufficient funds"
+        OUT_OF_STOCK = "OUT_OF_STOCK", "Out of stock"
+        PRICE_CHANGED = "PRICE_CHANGED", "Price changed"
+        DEALERSHIP_INACTIVE = "DEALERSHIP_INACTIVE", "Dealership inactive"
+        TRANSACTION_NOT_APPROVED = "TRANSACTION_NOT_APPROVED", "Transaction not approved"
 
     buyer = models.ForeignKey(BuyerProfile, on_delete=models.PROTECT, related_name="offers")
     dealership = models.ForeignKey("dealership.Dealership", on_delete=models.PROTECT, related_name="offers")

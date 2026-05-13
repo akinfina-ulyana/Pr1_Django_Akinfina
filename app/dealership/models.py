@@ -1,17 +1,10 @@
 from django.db import models
 
 from car_service import settings
-from core.base_models import TimeStampedModel
+from core.models import TimeStampedModel
 
 
 class Dealership(TimeStampedModel):
-    class Status(models.TextChoices):
-        PENDING = "pending", "Ожидает проверки"
-        ACTIVE = "active", "Активен"
-        SUSPENDED = "suspended", "Приостановлен"
-        REJECTED = "rejected", "Отклонён"
-
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="dealership")
     name = models.CharField(max_length=255)
     country = models.CharField(max_length=100)
     address = models.CharField(max_length=255, blank=True)
@@ -19,22 +12,29 @@ class Dealership(TimeStampedModel):
     contact_phone = models.CharField(max_length=20, blank=True)
     contact_email = models.EmailField(blank=True)
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
 
 
 class WorkerProfileDealership(TimeStampedModel):
+    class Position(models.TextChoices):
+        ADMIN = "ADMIN", "Admin"
+        MANAGER = "MANAGER", "Manager"
+        SALES = "SALES", "Sales"
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="worker_dealership")
     dealership = models.ForeignKey(Dealership, on_delete=models.CASCADE, related_name="workers")
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     country = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20)
-    position = models.CharField(max_length=100)  # ToDo-Choices
-    is_active = models.BooleanField(default=True)
+    position = models.CharField(
+        max_length=50,
+        choices=Position.choices,
+    )
+    is_active = models.BooleanField(default=False)
 
 
 class DealershipInventory(TimeStampedModel):
@@ -46,7 +46,6 @@ class DealershipInventory(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
 
-# Вид акции
 class DealershipPromotion(TimeStampedModel):
     class Status(models.TextChoices):
         DRAFT = "draft", "Черновик"
