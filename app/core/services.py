@@ -4,6 +4,8 @@ from typing import ClassVar
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 
+from users.serializers import CustomTokenObtainPairSerializer
+
 
 User = get_user_model()
 
@@ -59,6 +61,36 @@ class BaseOrganizationService(RegistrationService, ABC):
         EmailService.send_confirmation_email(user=user)
 
         return user
+
+    @classmethod
+    @transaction.atomic
+    def register_worker_by_invitation(cls, *, invitation, password, first_name, last_name, phone):
+        user = User.objects.create_user(
+            email=invitation.email, password=password, role=cls.get_user_role(), is_active=True, is_email_verified=True
+        )
+
+        organization = getattr(invitation, cls.organization_field)
+        cls.profile_model.objects.create(
+            user=user,
+            **{
+                cls.organization_field: organization,
+                "position": invitation.position,
+                "first_name": first_name,
+                "last_name": last_name,
+                "phone": phone,
+                "is_active": True,
+            },
+        )
+        invitation.status = invitation.Status.ACCEPTED
+        invitation.save(update_fields=["status"])
+
+        token = CustomTokenObtainPairSerializer.get_token(user)
+
+        return {
+            "user": user,
+            "access": str(token.access_token),
+            "refresh": str(token),
+        }
 
     @classmethod
     @abstractmethod

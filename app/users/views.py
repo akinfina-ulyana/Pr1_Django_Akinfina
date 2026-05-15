@@ -3,6 +3,8 @@ import logging
 from django.contrib.auth import get_user_model
 
 from core.views import BaseRegisterView
+from invitations.serializers import WorkerRegisterSerializer
+from invitations.services import InvitationService
 from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,6 +13,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from users.services import OrganizationServiceResolver
 from users.utils import LoginThrottle
 
 from .serializers import (
@@ -100,6 +103,32 @@ class PasswordResetConfirmView(APIView):
         return Response(
             {"message": "Password updated successfully"},
             status=status.HTTP_200_OK,
+        )
+
+
+class WorkerRegisterView(APIView):
+    def post(self, request):
+        serializer = WorkerRegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        token = serializer.validated_data["token"]
+        invitation = InvitationService.validate_token(token)
+
+        organization_service = OrganizationServiceResolver.resolve_by_invitation(invitation)
+
+        result = organization_service.register_worker_by_invitation(
+            invitation=invitation,
+            password=serializer.validated_data["password"],
+            first_name=serializer.validated_data["first_name"],
+            last_name=serializer.validated_data["last_name"],
+            phone=serializer.validated_data["phone"],
+        )
+
+        return Response(
+            {
+                "access": result["access"],
+                "refresh": result["refresh"],
+            }
         )
 
 

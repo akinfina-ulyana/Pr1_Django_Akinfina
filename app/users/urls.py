@@ -11,6 +11,7 @@ from .views import (
     PasswordResetConfirmView,
     PasswordResetRequestView,
     SupplierRegisterView,
+    WorkerRegisterView,
 )
 
 
@@ -20,8 +21,7 @@ urlpatterns = [
     path("register/buyer/", BuyerRegisterView.as_view(), name="register-buyer"),
     path("register/supplier/", SupplierRegisterView.as_view(), name="register-supplier"),
     path("register/dealership/", DealershipRegisterView.as_view(), name="register-dealership"),
-    # path("register/dealership_worker/", DealershipWorkerRegisterView.as_view(), name="register-dealership_worker"),
-    # path("register/supplier_worker/", SupplierWorkerRegisterView.as_view(), name="register-supplier_worker"),
+    path("register/worker/", WorkerRegisterView.as_view(), name="register-worker"),
     path("confirm-email/<uid>/<token>/", ConfirmEmailView.as_view(), name="confirm-email"),
     path("password-reset/", PasswordResetRequestView.as_view(), name="reset-pass"),
     path("password-reset-confirm/", PasswordResetConfirmView.as_view(), name="confirm-pass"),
