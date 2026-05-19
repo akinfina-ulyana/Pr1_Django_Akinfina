@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "dealership",
     "users",
     "cars",
+    "invitations",
 ]
 
 MIDDLEWARE = [
@@ -124,6 +125,9 @@ REST_FRAMEWORK = {
         "user": "30/min",
         "login": "5/min",
     },
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
+    "DEFAULT_VERSION": "v1",
+    "ALLOWED_VERSIONS": ["v1"],
 }
 
 SIMPLE_JWT = {

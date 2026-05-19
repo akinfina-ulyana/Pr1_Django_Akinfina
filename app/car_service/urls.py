@@ -27,7 +27,15 @@ router = DefaultRouter()
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include(router.urls)),
+    path(
+        "api/v1/",
+        include(("car_service.api_urls_v1", "v1"), namespace="v1"),
+    ),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+    ),
 ]
 
 if settings.DEBUG:
@@ -35,10 +43,4 @@ if settings.DEBUG:
 
     urlpatterns += [
         path("__debug__/", include(debug_toolbar.urls)),
-        path("api/auth/", include("users.urls")),
-    ]
-
-    urlpatterns += [
-        path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-        path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
     ]

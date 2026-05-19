@@ -9,11 +9,12 @@ from django.utils.http import urlsafe_base64_decode
 from buyers.models import BuyerProfile
 from core.services import BaseOrganizationService, RegistrationService
 from dealership.models import Dealership, WorkerProfileDealership
+from invitations.models import Invitation
 from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
 from suppliers.models import Supplier, WorkerProfileSupplier
 
 from users.models import User
-from users.serializers import CustomTokenObtainPairSerializer
 from users.utils import generate_confirmation_data
 
 
@@ -48,6 +49,16 @@ class BuyerService(RegistrationService):
         profile = user.buyer_profile
         profile.is_active = True
         profile.save(update_fields=["is_active"])
+
+
+class OrganizationServiceResolver:
+    @staticmethod
+    def resolve_by_invitation(invitation):
+        if invitation.supplier:
+            return SupplierService
+        if invitation.dealership:
+            return DealershipService
+        raise ValueError("Organization service not found")
 
 
 class SupplierService(BaseOrganizationService):
@@ -123,13 +134,24 @@ class EmailService:
 
         service.activate(user)
 
-        refresh_token = CustomTokenObtainPairSerializer.get_token(user)
+        refresh_token = AuthService.create_tokens(user)
 
         return {
             "message": "Email confirmed",
             "access": str(refresh_token.access_token),
             "refresh": str(refresh_token),
         }
+
+    @staticmethod
+    def send_invitation_email(invitation: Invitation):
+        url = f"http://{os.getenv('HOST')}/register?token={invitation.token}/"
+
+        send_mail(
+            subject="You are invited",
+            message=f"Click here to add to platform:{url}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[invitation.email],
+        )
 
 
 class PasswordResetService:
@@ -153,3 +175,23 @@ class PasswordResetService:
             raise ValidationError("Invalid or expired token")
         user.set_password(password)
         user.save(update_fields=["password"])
+
+
+class AuthService:
+    @staticmethod
+    def build_refresh_token(user):
+        refresh = RefreshToken.for_user(user)
+
+        refresh["role"] = user.role
+        refresh["email"] = user.email
+
+        return refresh
+
+    @classmethod
+    def create_tokens(cls, user):
+        refresh = cls.build_refresh_token(user)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
