@@ -4,7 +4,7 @@ from typing import ClassVar
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 
-from users.serializers import CustomTokenObtainPairSerializer
+from users.services import AuthService
 
 
 User = get_user_model()
@@ -84,7 +84,7 @@ class BaseOrganizationService(RegistrationService, ABC):
         invitation.status = invitation.Status.ACCEPTED
         invitation.save(update_fields=["status"])
 
-        token = CustomTokenObtainPairSerializer.get_token(user)
+        token = AuthService.create_tokens(user)
 
         return {
             "user": user,

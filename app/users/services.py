@@ -11,10 +11,10 @@ from core.services import BaseOrganizationService, RegistrationService
 from dealership.models import Dealership, WorkerProfileDealership
 from invitations.models import Invitation
 from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
 from suppliers.models import Supplier, WorkerProfileSupplier
 
 from users.models import User
-from users.serializers import CustomTokenObtainPairSerializer
 from users.utils import generate_confirmation_data
 
 
@@ -134,7 +134,7 @@ class EmailService:
 
         service.activate(user)
 
-        refresh_token = CustomTokenObtainPairSerializer.get_token(user)
+        refresh_token = AuthService.create_tokens(user)
 
         return {
             "message": "Email confirmed",
@@ -175,3 +175,23 @@ class PasswordResetService:
             raise ValidationError("Invalid or expired token")
         user.set_password(password)
         user.save(update_fields=["password"])
+
+
+class AuthService:
+    @staticmethod
+    def build_refresh_token(user):
+        refresh = RefreshToken.for_user(user)
+
+        refresh["role"] = user.role
+        refresh["email"] = user.email
+
+        return refresh
+
+    @classmethod
+    def create_tokens(cls, user):
+        refresh = cls.build_refresh_token(user)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }

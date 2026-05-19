@@ -2,23 +2,16 @@ from django.contrib.auth.password_validation import validate_password
 
 from core.serializers import BaseRegistrationSerializer
 from rest_framework import serializers
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import Token
 
 from .models import User
+from .services import AuthService
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
-    def get_token(cls, user: User) -> Token:
-        if not user.is_active:
-            raise AuthenticationFailed("Email unconfirmed")
-
-        token = super().get_token(user)
-        token["role"] = user.role
-        token["email"] = user.email
-        return token
+    def get_token(cls, user: User):
+        return AuthService.build_refresh_token(user)
 
 
 class BuyerRegistrationSerializer(BaseRegistrationSerializer):
