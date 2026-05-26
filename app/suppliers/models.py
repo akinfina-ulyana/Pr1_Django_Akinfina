@@ -17,7 +17,7 @@ class Supplier(TimeStampedModel):
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name, self.fo
+        return self.name, self.founded_year
 
 
 class WorkerProfileSupplier(TimeStampedModel):
@@ -59,13 +59,12 @@ class SupplierInventory(TimeStampedModel):
         unique_together = [("supplier", "car_model")]
 
 
-# Акции
 class SupplierPromotion(TimeStampedModel):
     class Status(models.TextChoices):
-        DRAFT = "draft", "Черновик"
-        ACTIVE = "active", "Активна"
-        EXPIRED = "expired", "Истекла"
-        CANCELED = "canceled", "Отменена"
+        DRAFT = "draft", "Draft"
+        ACTIVE = "active", "Active"
+        EXPIRED = "expired", "Expired"
+        CANCELED = "canceled", "Canceled"
 
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name="promotions")
     name = models.CharField(max_length=255)
@@ -76,7 +75,6 @@ class SupplierPromotion(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
 
-# Конкретные скидуи внутри(принадлежащие) акциям
 class SupplierPromotionItem(TimeStampedModel):
     supplier_promotion = models.ForeignKey(SupplierPromotion, on_delete=models.CASCADE, related_name="items")
     supplier_inventory = models.ForeignKey(SupplierInventory, on_delete=models.CASCADE, related_name="promotion_items")

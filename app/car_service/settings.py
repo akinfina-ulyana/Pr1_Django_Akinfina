@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework_simplejwt.token_blacklist",
+    "rest_framework",
     "debug_toolbar",
     "drf_spectacular",
     "buyers",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     "users",
     "cars",
     "invitations",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -128,6 +130,9 @@ REST_FRAMEWORK = {
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
     "DEFAULT_VERSION": "v1",
     "ALLOWED_VERSIONS": ["v1"],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
 }
 
 SIMPLE_JWT = {

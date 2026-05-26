@@ -7,12 +7,11 @@ from django.db import transaction
 from django.utils.http import urlsafe_base64_decode
 
 from buyers.models import BuyerProfile
-from core.services import BaseOrganizationService, RegistrationService
+from core.services import AuthService, BaseOrganizationService, RegistrationService
 from dealership.models import Dealership, WorkerProfileDealership
 from invitations.models import Invitation
 from rest_framework.exceptions import NotFound, ValidationError
-from rest_framework_simplejwt.tokens import RefreshToken
-from suppliers.models import Supplier, WorkerProfileSupplier
+from suppliers.services import SupplierService
 
 from users.models import User
 from users.utils import generate_confirmation_data
@@ -59,17 +58,6 @@ class OrganizationServiceResolver:
         if invitation.dealership:
             return DealershipService
         raise ValueError("Organization service not found")
-
-
-class SupplierService(BaseOrganizationService):
-    organization_model = Supplier
-    profile_model = WorkerProfileSupplier
-    organization_field = "supplier"
-    profile_accessor = "worker_supplier"
-
-    @classmethod
-    def get_user_role(cls):
-        return User.Role.WORKER_SUPPLIER
 
 
 class DealershipService(BaseOrganizationService):
@@ -175,23 +163,3 @@ class PasswordResetService:
             raise ValidationError("Invalid or expired token")
         user.set_password(password)
         user.save(update_fields=["password"])
-
-
-class AuthService:
-    @staticmethod
-    def build_refresh_token(user):
-        refresh = RefreshToken.for_user(user)
-
-        refresh["role"] = user.role
-        refresh["email"] = user.email
-
-        return refresh
-
-    @classmethod
-    def create_tokens(cls, user):
-        refresh = cls.build_refresh_token(user)
-
-        return {
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }

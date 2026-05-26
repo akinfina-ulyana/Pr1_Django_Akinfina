@@ -12,6 +12,7 @@ celery = "*"
 drf-spectacular = "*"
 django-debug-toolbar = "*"
 djangorestframework-simplejwt = "*"
+django-filter = "*"
 
 [dev-packages]
 pre-commit = "*"

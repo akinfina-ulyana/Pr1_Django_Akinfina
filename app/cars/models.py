@@ -27,9 +27,9 @@ class CarModel(TimeStampedModel):
         CVT = "cvt", "Вариатор"
 
     class DriveType(models.TextChoices):
-        FWD = "fwd", "Передний"
-        RWD = "rwd", "Задний"
-        AWD = "awd", "Полный"
+        FWD = "fwd", "Front-wheel drive"
+        RWD = "rwd", "Rear-wheel drive"
+        AWD = "awd", "All-wheel drive"
 
     brand = models.CharField(max_length=100)
     model_name = models.CharField(max_length=100)
@@ -51,5 +51,5 @@ class CarModel(TimeStampedModel):
     class Meta:
         indexes = [models.Index(fields=["brand", "model_name"])]
 
-    def str(self):
+    def __str__(self):
         return f"{self.brand} {self.model_name} {self.generation}".strip()
