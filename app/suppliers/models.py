@@ -61,10 +61,10 @@ class SupplierInventory(TimeStampedModel):
 
 class SupplierPromotion(TimeStampedModel):
     class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        ACTIVE = "active", "Active"
-        EXPIRED = "expired", "Expired"
-        CANCELED = "canceled", "Canceled"
+        DRAFT = "DRAFT", "Draft"
+        ACTIVE = "ACTIVE", "Active"
+        EXPIRED = "EXPIRED", "Expired"
+        CANCELED = "CANCELED", "Canceled"
 
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name="promotions")
     name = models.CharField(max_length=255)

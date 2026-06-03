@@ -45,6 +45,9 @@ class DealershipInventory(TimeStampedModel):
     sale_price = models.DecimalField(max_digits=14, decimal_places=2)
     is_active = models.BooleanField(default=True)
 
+    class Meta:
+        unique_together = [("dealership", "car_model")]
+
 
 class DealershipPromotion(TimeStampedModel):
     class Status(models.TextChoices):

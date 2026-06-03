@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from django.db import transaction
 from django.db.models import F
 
 from rest_framework.exceptions import ValidationError
@@ -27,18 +26,15 @@ class BuyerService:
         profile.save(update_fields=["is_active"])
 
     @staticmethod
-    @transaction.atomic
     def deposit(profile: BuyerProfile, amount: Decimal) -> BuyerProfile:
         if amount <= 0:
             raise ValidationError({"amount": "Must be positive"})
 
-        BuyerProfile.objects.select_for_update().filter(pk=profile.pk).first()
         BuyerProfile.objects.filter(pk=profile.pk).update(balance=F("balance") + amount)
         profile.refresh_from_db(fields=["balance"])
         return profile
 
     @staticmethod
-    @transaction.atomic
     def withdraw(profile: BuyerProfile, amount: Decimal) -> BuyerProfile:
         if amount <= 0:
             raise ValidationError({"amount": "Must be positive"})
