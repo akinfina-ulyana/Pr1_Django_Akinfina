@@ -7,8 +7,8 @@ from django.db import transaction
 from django.utils.http import urlsafe_base64_decode
 
 from buyers.models import BuyerProfile
-from core.services import AuthService, BaseOrganizationService, RegistrationService
-from dealership.models import Dealership, WorkerProfileDealership
+from core.services import AuthService, RegistrationService
+from dealership.services import DealershipService
 from invitations.models import Invitation
 from rest_framework.exceptions import NotFound, ValidationError
 from suppliers.services import SupplierService
@@ -60,15 +60,15 @@ class OrganizationServiceResolver:
         raise ValueError("Organization service not found")
 
 
-class DealershipService(BaseOrganizationService):
-    organization_model = Dealership
-    profile_model = WorkerProfileDealership
-    organization_field = "dealership"
-    profile_accessor = "worker_dealership"
-
-    @classmethod
-    def get_user_role(cls):
-        return User.Role.WORKER_DEALERSHIP
+# class DealershipService(BaseOrganizationService):
+#     organization_model = Dealership
+#     profile_model = WorkerProfileDealership
+#     organization_field = "dealership"
+#     profile_accessor = "worker_dealership"
+#
+#     @classmethod
+#     def get_user_role(cls):
+#         return User.Role.WORKER_DEALERSHIP
 
 
 class EmailService:
