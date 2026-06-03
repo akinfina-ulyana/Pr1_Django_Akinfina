@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from suppliers.services import SupplierService
 
 from users.services import OrganizationServiceResolver
 from users.utils import LoginThrottle
@@ -29,7 +30,6 @@ from .services import (
     DealershipService,
     EmailService,
     PasswordResetService,
-    SupplierService,
 )
 
 

@@ -5,31 +5,31 @@ from core.models import TimeStampedModel
 
 class CarModel(TimeStampedModel):
     class BodyType(models.TextChoices):
-        SEDAN = "sedan", "Седан"
-        HATCHBACK = "hatchback", "Хэтчбек"
-        SUV = "suv", "SUV"
-        COUPE = "coupe", "Купе"
-        WAGON = "wagon", "Универсал"
-        PICKUP = "pickup", "Пикап"
-        VAN = "van", "Минивэн"
+        SEDAN = "SEDAN", "Sedan"
+        HATCHBACK = "HATCHBACK", "Hatchback"
+        SUV = "SUV", "SUV"
+        COUPE = "COUPE", "Coupe"
+        WAGON = "WAGON", "Station Wagon"
+        PICKUP = "PICKUP", "Pickup"
+        VAN = "VAN", "Minivan"
 
     class FuelType(models.TextChoices):
-        PETROL = "petrol", "Бензин"
-        DIESEL = "diesel", "Дизель"
-        HYBRID = "hybrid", "Гибрид"
-        ELECTRIC = "electric", "Электро"
-        GAS = "gas", "Газ"
+        PETROL = "PETROL", "Petrol"
+        DIESEL = "DIESEL", "Diesel"
+        HYBRID = "HYBRID", "Hybrid"
+        ELECTRIC = "ELECTRIC", "Electric"
+        GAS = "GAS", "Gas"
 
     class Transmission(models.TextChoices):
-        MANUAL = "manual", "Механика"
-        AUTOMATIC = "automatic", "Автомат"
-        ROBOT = "robot", "Робот"
-        CVT = "cvt", "Вариатор"
+        MANUAL = "MANUAL", "Manual"
+        AUTOMATIC = "AUTOMATIC", "Automatic"
+        ROBOT = "ROBOT", "Automated Manual"
+        CVT = "CVT", "CVT"
 
     class DriveType(models.TextChoices):
-        FWD = "fwd", "Передний"
-        RWD = "rwd", "Задний"
-        AWD = "awd", "Полный"
+        FWD = "FWD", "Front-wheel drive"
+        RWD = "RWD", "Rear-wheel drive"
+        AWD = "AWD", "All-wheel drive"
 
     brand = models.CharField(max_length=100)
     model_name = models.CharField(max_length=100)
@@ -51,5 +51,5 @@ class CarModel(TimeStampedModel):
     class Meta:
         indexes = [models.Index(fields=["brand", "model_name"])]
 
-    def str(self):
+    def __str__(self):
         return f"{self.brand} {self.model_name} {self.generation}".strip()

@@ -4,10 +4,30 @@ from typing import ClassVar
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 
-from users.services import AuthService
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 User = get_user_model()
+
+
+class AuthService:
+    @staticmethod
+    def build_refresh_token(user):
+        refresh = RefreshToken.for_user(user)
+
+        refresh["role"] = user.role
+        refresh["email"] = user.email
+
+        return refresh
+
+    @classmethod
+    def create_tokens(cls, user):
+        refresh = cls.build_refresh_token(user)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
 
 
 class RegistrationService:

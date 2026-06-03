@@ -4,5 +4,5 @@ from .views import InvitationCreateView
 
 
 urlpatterns = [
-    path("invitations/", InvitationCreateView.as_view()),
+    path("", InvitationCreateView.as_view()),
 ]
