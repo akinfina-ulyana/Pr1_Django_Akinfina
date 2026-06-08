@@ -79,8 +79,6 @@ class DealershipPromotionItem(TimeStampedModel):
 
 
 class PrioritySuppliers(TimeStampedModel):
-    """Приоритетные поставщики автосалона"""
-
     supplier = models.ForeignKey("suppliers.Supplier", on_delete=models.CASCADE, related_name="priority_links")
     dealership = models.ForeignKey(Dealership, on_delete=models.CASCADE, related_name="priority_suppliers")
     note = models.TextField(blank=True)
@@ -90,3 +88,15 @@ class PrioritySuppliers(TimeStampedModel):
 
     class Meta:
         unique_together = [("supplier", "dealership")]
+
+
+class DealershipPreferredCar(TimeStampedModel):
+    dealership = models.ForeignKey(Dealership, on_delete=models.CASCADE, related_name="preferred_cars")
+    car_model = models.ForeignKey("cars.CarModel", on_delete=models.PROTECT, related_name="preferred_by_dealerships")
+    min_quantity = models.PositiveIntegerField(
+        default=3, help_text="The minimum inventory the dealership wants to maintain"
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [("dealership", "car_model")]
