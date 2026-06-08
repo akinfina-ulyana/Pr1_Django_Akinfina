@@ -55,7 +55,6 @@ class DealershipService(BaseOrganizationService):
         dealership.save(update_fields=["is_active"])
 
     @staticmethod
-    @transaction.atomic
     def balance_deposit(dealership: Dealership, amount: Decimal) -> Dealership:
         if amount <= 0:
             raise ValidationError({"amount": "Must be positive"})
