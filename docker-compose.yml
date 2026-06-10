@@ -47,5 +47,36 @@ services:
     ports:
       - "6379:6379"
 
+
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    command: celery -A car_service worker --loglevel=info
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A car_service beat --loglevel=info
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
