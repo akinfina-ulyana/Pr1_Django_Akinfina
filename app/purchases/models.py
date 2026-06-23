@@ -4,7 +4,7 @@ from django.db.models.fields import PositiveIntegerField
 from core.models import TimeStampedModel
 
 
-class SupplierPurchaseTransaction(TimeStampedModel):
+class DealershipPurchaseTransaction(TimeStampedModel):
     """The fact of purchase by a car dealership from a supplier"""
 
     dealership = models.ForeignKey(
@@ -27,6 +27,7 @@ class SupplierPurchaseTransaction(TimeStampedModel):
 
 class AutoPurchaseLog(TimeStampedModel):
     class Outcome(models.TextChoices):
+        PENDING = "PENDING", "In progress"
         PURCHASED = "PURCHASED", "Purchased"
         SKIPPED_NO_OFFER = "SKIPPED_NO_OFFER", "No supplier offer found"
         SKIPPED_NO_FUNDS = "SKIPPED_NO_FUNDS", "Insufficient dealership balance"
@@ -40,6 +41,8 @@ class AutoPurchaseLog(TimeStampedModel):
     car_model = models.ForeignKey(
         "cars.CarModel",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="auto_purchase_logs",
     )
     supplier = models.ForeignKey(
@@ -57,6 +60,14 @@ class AutoPurchaseLog(TimeStampedModel):
     tick_id = models.CharField(max_length=64, db_index=True)
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["dealership", "tick_id"],
+                condition=models.Q(car_model__isnull=True),
+                name="unique_sentinel_per_tick",
+            )
+        ]
+
         indexes = [
             models.Index(fields=["dealership", "-created_at"]),
             models.Index(fields=["tick_id"]),

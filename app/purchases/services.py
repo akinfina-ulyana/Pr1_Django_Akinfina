@@ -39,7 +39,7 @@ from suppliers.models import (
     SupplierPromotionItem,
 )
 
-from purchases.models import AutoPurchaseLog, SupplierPurchaseTransaction
+from purchases.models import AutoPurchaseLog, DealershipPurchaseTransaction
 
 
 logger = logging.getLogger(__name__)
@@ -279,52 +279,77 @@ class AutoPurchaseService:
             logger.warning("Dealership %s not found or inactive", dealership_id)
             return {"attempted": 0, "fully_purchased": 0, "partial": 0, "failed": 0}
 
-        if AutoPurchaseLog.objects.filter(dealership=dealership, tick_id=tick_id).exists():
+        sentinel, created = AutoPurchaseLog.objects.get_or_create(
+            dealership=dealership,
+            car_model=None,
+            tick_id=tick_id,
+            defaults={
+                "outcome": AutoPurchaseLog.Outcome.PENDING,
+                "message": "Processing started",
+                "quantity_requested": 0,
+            },
+        )
+        if not created:
             logger.info(
-                "Dealership %s already processed for tick %s — skipping",
-                dealership_id,
+                "Tick %s already claimed for dealership %s (status=%s), skipping",
                 tick_id,
+                dealership_id,
+                sentinel.outcome,
             )
             return {"attempted": 0, "fully_purchased": 0, "partial": 0, "failed": 0}
 
         logger.info("Auto-purchase start: dealership=%s tick=%s", dealership_id, tick_id)
 
-        demand_items = DemandCalculator(dealership).compute()
-        if not demand_items:
-            logger.info("No demand for dealership %s", dealership_id)
-            return {"attempted": 0, "fully_purchased": 0, "partial": 0, "failed": 0}
+        try:
+            demand_items = DemandCalculator(dealership).compute()
+            if not demand_items:
+                logger.info("No demand for dealership %s", dealership_id)
+                sentinel.outcome = AutoPurchaseLog.Outcome.SKIPPED_NO_OFFER
+                sentinel.message = "No demand items computed"
+                sentinel.save(update_fields=["outcome", "message", "updated_at"])
+                return {"attempted": 0, "fully_purchased": 0, "partial": 0, "failed": 0}
 
-        resolver = SupplierOfferResolver(dealership)
-        summary = {"attempted": 0, "fully_purchased": 0, "partial": 0, "failed": 0}
+            resolver = SupplierOfferResolver(dealership)
+            summary = {"attempted": 0, "fully_purchased": 0, "partial": 0, "failed": 0}
 
-        for item in demand_items:
-            summary["attempted"] += 1
-            try:
-                result = cls.process_one(dealership, item, resolver, tick_id)
-                if result.is_full:
-                    summary["fully_purchased"] += 1
-                elif result.is_partial:
-                    summary["partial"] += 1
-                else:
+            for item in demand_items:
+                summary["attempted"] += 1
+                try:
+                    result = cls.process_one(dealership, item, resolver, tick_id)
+                    if result.is_full:
+                        summary["fully_purchased"] += 1
+                    elif result.is_partial:
+                        summary["partial"] += 1
+                    else:
+                        summary["failed"] += 1
+                except Exception as exc:
+                    logger.exception(
+                        "Error processing %s for dealership %s",
+                        item.car_model,
+                        dealership_id,
+                    )
+                    AutoPurchaseLog.objects.create(
+                        dealership=dealership,
+                        car_model=item.car_model,
+                        outcome=AutoPurchaseLog.Outcome.FAILED,
+                        quantity_requested=item.quantity_to_buy,
+                        message=f"Exception: {exc}",
+                        tick_id=tick_id,
+                    )
                     summary["failed"] += 1
-            except Exception as exc:
-                logger.exception(
-                    "Error processing %s for dealership %s",
-                    item.car_model,
-                    dealership_id,
-                )
-                AutoPurchaseLog.objects.create(
-                    dealership=dealership,
-                    car_model=item.car_model,
-                    outcome=AutoPurchaseLog.Outcome.FAILED,
-                    quantity_requested=item.quantity_to_buy,
-                    message=f"Exception: {exc}",
-                    tick_id=tick_id,
-                )
-                summary["failed"] += 1
 
-        logger.info("Auto-purchase done: dealership=%s %s", dealership_id, summary)
-        return summary
+            sentinel.outcome = AutoPurchaseLog.Outcome.PURCHASED
+            sentinel.message = str(summary)
+            sentinel.save(update_fields=["outcome", "message", "updated_at"])
+
+            logger.info("Auto-purchase done: dealership=%s %s", dealership_id, summary)
+            return summary
+
+        except Exception as exc:
+            sentinel.outcome = AutoPurchaseLog.Outcome.FAILED
+            sentinel.message = f"Fatal excepion: {exc}"
+            sentinel.save(update_fields=["outcome", "message", "updated_at"])
+            raise
 
     @classmethod
     def process_one(
@@ -451,7 +476,7 @@ class AutoPurchaseService:
             )
         DealershipInventory.objects.filter(pk=dealership_inv.pk).update(quantity=F("quantity") + quantity)
 
-        SupplierPurchaseTransaction.objects.create(
+        DealershipPurchaseTransaction.objects.create(
             dealership=dealership,
             supplier=offer.supplier_inventory.supplier,
             supplier_inventory=offer.supplier_inventory,
