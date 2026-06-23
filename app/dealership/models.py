@@ -51,10 +51,10 @@ class DealershipInventory(TimeStampedModel):
 
 class DealershipPromotion(TimeStampedModel):
     class Status(models.TextChoices):
-        DRAFT = "draft", "Черновик"
-        ACTIVE = "active", "Активна"
-        EXPIRED = "expired", "Истекла"
-        CANCELED = "canceled", "Отменена"
+        DRAFT = "DRAFT", "draft"
+        ACTIVE = "ACTIVE", "active"
+        EXPIRED = "EXPIRED", "expired"
+        CANCELED = "CANCELED", "canceled"
 
     dealership = models.ForeignKey(Dealership, on_delete=models.CASCADE, related_name="promotions")
     name = models.CharField(max_length=255)
