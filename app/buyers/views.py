@@ -1,18 +1,25 @@
 from decimal import Decimal
+from urllib.request import Request
 
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
-from users.permissions import IsAdmin, IsAdminOrBuyer
+from rest_framework.views import APIView
+from users.permissions import IsAdmin, IsAdminOrBuyer, IsBuyer
 
+from buyers.filters import MarketplaceInventoryFilter
 from buyers.models import BuyerProfile
 from buyers.serializers import (
     BalanceOperationSerializer,
     BuyerProfileSerializer,
+    MarketplaceInventorySerializer,
+    OfferCreateSerializer,
+    OfferReadSerializer,
 )
-from buyers.services import BuyerService
+from buyers.services import BuyerService, MarketplaceService, OfferService
 
 
 class BuyerProfileViewSet(
@@ -87,7 +94,7 @@ class BuyerProfileViewSet(
         return Response({"balance": str(BuyerService.get_balance(profile))})
 
     @action(detail=False, methods=["post"], url_path="me/deposit")
-    def deposit(self, request):
+    def deposit(self, request: Request) -> Response:
         # POST /buyers/me/deposit/  body: {"amount": "100.00"}
 
         profile = self._get_own_profile()
@@ -98,7 +105,7 @@ class BuyerProfileViewSet(
         return Response({"balance": str(profile.balance)})
 
     @action(detail=False, methods=["post"], url_path="me/withdraw")
-    def withdraw(self, request):
+    def withdraw(self, request: Request) -> Response:
         # POST /buyers/me/withdraw/  body: {"amount": "50.00"}
         profile = self._get_own_profile()
         serializer = BalanceOperationSerializer(data=request.data)
@@ -106,3 +113,35 @@ class BuyerProfileViewSet(
         amount: Decimal = serializer.validated_data["amount"]
         profile = BuyerService.withdraw(profile, amount)
         return Response({"balance": str(profile.balance)})
+
+
+class DealershipMarketplaceViewSetForBuyers(viewsets.ReadOnlyModelViewSet):
+    serializer_class = MarketplaceInventorySerializer
+    permission_classes = [IsAdminOrBuyer]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MarketplaceInventoryFilter
+
+    def get_queryset(self):
+        return MarketplaceService.get_sellable_inventory()
+
+
+class OfferCreateView(APIView):
+    permission_classes = [IsBuyer]
+
+    def post(self, request):
+        serializer = OfferCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        profile = BuyerService.get_profile_for_user(request.user)
+        if profile is None or not profile.is_active:
+            return Response(
+                {"detail": "Buyer profile not found or inactive"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        offer = OfferService.create_offer(
+            buyer=profile,
+            dealership_inventory_id=serializer.validated_data["dealership_inventory_id"],
+        )
+
+        return Response(OfferReadSerializer(offer).data, status=status.HTTP_201_CREATED)

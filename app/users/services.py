@@ -60,17 +60,6 @@ class OrganizationServiceResolver:
         raise ValueError("Organization service not found")
 
 
-# class DealershipService(BaseOrganizationService):
-#     organization_model = Dealership
-#     profile_model = WorkerProfileDealership
-#     organization_field = "dealership"
-#     profile_accessor = "worker_dealership"
-#
-#     @classmethod
-#     def get_user_role(cls):
-#         return User.Role.WORKER_DEALERSHIP
-
-
 class EmailService:
     SERVICES = {
         User.Role.BUYER: BuyerService,
