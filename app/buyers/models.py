@@ -30,9 +30,7 @@ class Offer(TimeStampedModel):
     class RejectionReason(models.TextChoices):
         INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS", "Insufficient funds"
         OUT_OF_STOCK = "OUT_OF_STOCK", "Out of stock"
-        PRICE_CHANGED = "PRICE_CHANGED", "Price changed"
         DEALERSHIP_INACTIVE = "DEALERSHIP_INACTIVE", "Dealership inactive"
-        TRANSACTION_NOT_APPROVED = "TRANSACTION_NOT_APPROVED", "Transaction not approved"
 
     buyer = models.ForeignKey(BuyerProfile, on_delete=models.PROTECT, related_name="offers")
     dealership = models.ForeignKey("dealership.Dealership", on_delete=models.PROTECT, related_name="offers")

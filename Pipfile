@@ -13,6 +13,7 @@ drf-spectacular = "*"
 django-debug-toolbar = "*"
 djangorestframework-simplejwt = "*"
 django-filter = "*"
+kafka-python = "*"
 
 [dev-packages]
 pre-commit = "*"

@@ -69,3 +69,20 @@ def process_dealership_priority_refresh(dealership_id: int):
         return {"added": 0, "removed": 0}
 
     return PrioritySupplierRefresher.refresh_for_dealership(dealership)
+
+
+@shared_task(name="purchases.tasks.process_offer", bind=True, max_retries=3, default_retry_delay=10)
+def process_offer(self, offer_id: int):
+    from buyers.services import OfferProcessingService
+
+    try:
+        result = OfferProcessingService.process(offer_id)
+        logger.info("process_offer offer_id=%s result=%s", offer_id, result)
+        return {"offer_id": offer_id, "result": result}
+
+    except Exception as exc:
+        logger.exception("process_offer failed for %s", offer_id)
+        raise self.retry(
+            exc=exc,
+            countdown=10 * (2**self.request.retries),
+        ) from exc
