@@ -18,7 +18,7 @@ class Invitation(TimeStampedModel):
     email = models.EmailField()
     supplier = models.ForeignKey("suppliers.Supplier", null=True, blank=True, on_delete=models.CASCADE)
     dealership = models.ForeignKey("dealership.Dealership", null=True, blank=True, on_delete=models.CASCADE)
-
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     position = models.CharField(max_length=50)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_invitations")
     expires_at = models.DateTimeField()

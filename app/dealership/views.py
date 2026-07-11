@@ -47,7 +47,7 @@ class DealershipScopedMixin:
             dealership = self._own_dealership()
             if dealership is None:
                 return qs.none()
-            return qs.filter(**{self.dealership_lookup: dealership})
+            return qs.filter(**{self.dealership_lookup: dealership.pk})
         return qs
 
 
@@ -253,7 +253,7 @@ class DealershipPromotionItemViewSet(
         )
 
     def get_permissions(self):
-        return IsAdminOrIsDealershipWorker()
+        return [IsAdminOrIsDealershipWorker()]
 
     def perform_create(self, serializer):
         promotion = serializer.validated_data["dealership_promotion"]

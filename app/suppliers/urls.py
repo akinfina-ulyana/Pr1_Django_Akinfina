@@ -9,7 +9,7 @@ from suppliers.views import (
 
 
 router = DefaultRouter()
-router.register("", SupplierViewSet, basename="supplier")
+
 router.register(
     "supplier-inventory",
     SupplierInventoryViewSet,
@@ -25,5 +25,5 @@ router.register(
     SupplierPromotionItemViewSet,
     basename="supplier-promotion-item",
 )
-
+router.register("", SupplierViewSet, basename="supplier")
 urlpatterns = router.urls

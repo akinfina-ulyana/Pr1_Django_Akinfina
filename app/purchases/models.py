@@ -18,7 +18,7 @@ class DealershipPurchaseTransaction(TimeStampedModel):
     quantity = PositiveIntegerField()
     unit_price = models.DecimalField(max_digits=14, decimal_places=2)
     total_price = models.DecimalField(max_digits=14, decimal_places=2)
-    discount_percent_applied = models.DecimalField(max_digits=2, decimal_places=2, default=0)
+    discount_percent_applied = models.DecimalField(max_digits=2, decimal_places=2, default=0)  # ToDo
     is_active = models.BooleanField(default=True)
 
     class Meta:

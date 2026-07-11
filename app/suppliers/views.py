@@ -47,7 +47,7 @@ class SupplierScopedMixin:
             supplier = self._own_supplier()
             if supplier is None:
                 return qs.none()
-            return qs.filter(**{self.supplier_lookup: supplier})
+            return qs.filter(**{self.supplier_lookup: supplier.pk})
         return qs
 
 

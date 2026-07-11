@@ -21,7 +21,7 @@ class CarModelViewSet(
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:  # вот тут исправить  иначе and
-            return IsAnyAuthenticatedRole()
+            return [IsAnyAuthenticatedRole()]
 
         return [IsAdmin()]
 
