@@ -17,6 +17,12 @@ kafka-python = "*"
 
 [dev-packages]
 pre-commit = "*"
+pytest = "*"
+pytest-django = "*"
+factory-boy = "*"
+pytest-mock = "*"
+django-stubs = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.12"

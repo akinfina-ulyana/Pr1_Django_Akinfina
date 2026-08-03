@@ -1,27 +1,82 @@
 name: CI
 
 on:
-  push:
   pull_request:
+  push:
+#    branches: [main, develop]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install pipenv
         run: pip install pipenv
 
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+
       - name: Install dependencies
         run: pipenv install --dev
 
       - name: Run pre-commit
         run: pipenv run pre-commit run --all-files
+
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 5s
+          --health-retries 5
+
+    env:
+      DJANGO_SECRET_KEY: test-secret-key
+      JWT_SECRET_KEY: test-jwt-key
+      POSTGRES_DB: test_db
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+
+      - name: Install dependencies
+        run: pipenv install --dev
+
+      - name: Run migrations
+        run: pipenv run python manage.py migrate --noinput
+        working-directory: app
+
+      - name: Run pytest
+        run: pipenv run pytest
+        working-directory: app

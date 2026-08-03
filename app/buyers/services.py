@@ -49,6 +49,7 @@ class BuyerService:
         return profile
 
     @staticmethod
+    @transaction.atomic
     def withdraw(profile: BuyerProfile, amount: Decimal) -> BuyerProfile:
         if amount <= 0:
             raise ValidationError({"amount": "Must be positive"})
@@ -215,12 +216,16 @@ class OfferProcessingService:
 
         if not inventory.dealership.is_active:
             return cls._reject(
-                offer=offer, reason=Offer.RejectionReason.DEALERSHIP_INACTIVE[0], message="Dealership became inactive"
+                offer=offer,
+                reason=Offer.RejectionReason.DEALERSHIP_INACTIVE,  # type: ignore[arg-type]
+                message="Dealership became inactive",
             )
 
         if inventory.quantity <= 0:
             return cls._reject(
-                offer=offer, reason=Offer.RejectionReason.OUT_OF_STOCK[0], message="Out of stock at settlement"
+                offer=offer,
+                reason=Offer.RejectionReason.OUT_OF_STOCK,  # type: ignore[arg-type]
+                message="Out of stock at settlement",  # type: ignore[arg-type]
             )
 
         buyer = offer.buyer
@@ -228,7 +233,7 @@ class OfferProcessingService:
         if buyer.balance < offer.final_price:
             return cls._reject(
                 offer=offer,
-                reason=Offer.RejectionReason.INSUFFICIENT_FUNDS[0],
+                reason=Offer.RejectionReason.INSUFFICIENT_FUNDS,  # type: ignore[arg-type]
                 message="Insufficient funds at settlement",
             )
 

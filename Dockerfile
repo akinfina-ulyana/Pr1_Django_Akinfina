@@ -9,7 +9,7 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev \
     && pip install pipenv
 
 COPY Pipfile Pipfile.lock ./
-RUN pipenv install --deploy --system
+RUN pipenv install --deploy --system --dev
 
 RUN apk add --no-cache postgresql-libs \
     && apk del .build-deps

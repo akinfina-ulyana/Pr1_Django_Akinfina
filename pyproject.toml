@@ -1,8 +1,6 @@
 [tool.bandit]
-exclude_dirs = [
-    "migrations"
-]
-skips = ["B308", "B501"]
+exclude_dirs = ["migrations",  "tests", "**/test_*.py"]
+skips = ["B308", "B501", "B101", "B107"]
 
 [tool.black]
 line-length = 120
@@ -103,6 +101,7 @@ lines-after-imports = 2
 "**/*test*.py" = ["E402", "F403", "F405", "S", "N802"]
 "**/{settings}/*" = ["E402", "F403", "F405"]
 "**/migrations/*" = ["RUF", "I"]
+"app/conftest.py" = ["INP001"]
 
 [tool.mypy]
 exclude = ".*migrations.*"

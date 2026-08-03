@@ -17,7 +17,7 @@ class Supplier(TimeStampedModel):
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name, self.founded_year
+        return f"{self.name}, {self.founded_year}"
 
 
 class WorkerProfileSupplier(TimeStampedModel):
